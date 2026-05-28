@@ -162,6 +162,58 @@ export async function buildLockTx(
   return txHash
 }
 
+// ─── Collateral auto-selection ────────────────────────────────────────────────
+
+// LEARNING: Collateral must be a pure-ADA UTxO (no native tokens). The protocol
+// seizes it if the script fails phase-2 validation on-chain. We prefer a small
+// UTxO (2–10 ADA) to minimise the amount at risk, falling back to the smallest
+// pure-ADA UTxO available if none sits in that range.
+//
+// Selection order:
+//   1. wallet.getCollateralMesh() — respects the user's explicit choice
+//   2. Auto-pick from wallet UTxOs: pure-ADA, ascending by value, 2–10 ADA preferred
+//   3. Any pure-ADA UTxO ≥ 2 ADA
+//   4. Throw with a clear message
+export async function pickCollateral(wallet: WalletInterface): Promise<UTxO> {
+  // Respect whatever the user pinned in their wallet first
+  const designated = await wallet.getCollateralMesh()
+  if (designated && designated.length > 0) return designated[0]
+
+  const allUtxos = await wallet.getUtxosMesh()
+
+  // Pure-ADA means amount array has exactly one entry: lovelace
+  const pureAda = allUtxos
+    .filter(
+      (u) =>
+        u.output.amount.length === 1 &&
+        u.output.amount[0].unit === "lovelace"
+    )
+    .sort(
+      (a, b) =>
+        Number(a.output.amount[0].quantity) -
+        Number(b.output.amount[0].quantity)
+    )
+
+  // Ideal: small enough not to hurt if slashed, large enough to cover collateral
+  const MIN_LV = 2_000_000   // 2 ADA — safe floor for any realistic fee
+  const MAX_LV = 10_000_000  // 10 ADA — keeps risk bounded
+
+  const ideal = pureAda.find((u) => {
+    const lv = Number(u.output.amount[0].quantity)
+    return lv >= MIN_LV && lv <= MAX_LV
+  })
+  if (ideal) return ideal
+
+  const fallback = pureAda.find(
+    (u) => Number(u.output.amount[0].quantity) >= MIN_LV
+  )
+  if (fallback) return fallback
+
+  throw new Error(
+    "No suitable collateral UTxO found. Add at least 2 ADA as a pure-ADA UTxO to your wallet, or enable collateral in your wallet settings."
+  )
+}
+
 // ─── Redeem transaction ───────────────────────────────────────────────────────
 
 // LEARNING: Redeeming means spending a script UTxO. The transaction must:
@@ -178,18 +230,11 @@ export async function buildRedeemTx(
 ): Promise<string> {
   const provider = makeProvider()
 
-  const [collateralUtxos, changeAddress] = await Promise.all([
-    wallet.getCollateralMesh(),      // pure-ADA UTxOs reserved for collateral
+  const [col, changeAddress] = await Promise.all([
+    pickCollateral(wallet),
     wallet.getChangeAddressBech32(),
   ])
 
-  if (!collateralUtxos || collateralUtxos.length === 0) {
-    throw new Error(
-      "No collateral UTxO set in wallet. Enable collateral in your wallet settings."
-    )
-  }
-
-  const col = collateralUtxos[0]
   const { txHash, outputIndex } = params.scriptUtxo.input
   const { amount, address } = params.scriptUtxo.output
 

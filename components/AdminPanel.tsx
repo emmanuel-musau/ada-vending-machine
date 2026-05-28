@@ -19,6 +19,7 @@ import UTxODisplay from "./UTxODisplay"
 import { buildLockTx } from "@/lib/meshTx"
 import { CARDANOSCAN_BASE } from "@/lib/contract"
 import { parseCardanoError } from "@/lib/errors"
+import { usePollingRefresh } from "@/lib/usePollingRefresh"
 
 type Status = { type: "idle" | "pending" | "success" | "error"; message?: string; txHash?: string }
 
@@ -37,9 +38,10 @@ export default function AdminPanel() {
   const MIN_ADA = 2
 
   // ADA amount entered by the user — converted to lovelace before the tx is built
+  const { tick: refreshCounter, triggerPoll, isPolling } = usePollingRefresh(3000, 25)
+
   const [ada, setAda] = useState("5")
   const [secretCode, setSecretCode] = useState("")
-  const [refreshCounter, setRefreshCounter] = useState(0)
   const [status, setStatus] = useState<Status>({ type: "idle" })
 
   const adaNum = Number(ada)
@@ -68,7 +70,7 @@ export default function AdminPanel() {
         secretCode: Number(secretCode),
       })
       setStatus({ type: "success", txHash })
-      setRefreshCounter((n) => n + 1)
+      triggerPoll()
     } catch (e: unknown) {
       setStatus({ type: "error", message: parseCardanoError(e) })
     }
@@ -151,7 +153,7 @@ export default function AdminPanel() {
           disabled={!connected || status.type === "pending" || adaNum < MIN_ADA}
           className="w-full py-3 border border-[#0033AD] text-blue-300 hover:bg-[#0D2040] disabled:opacity-30 disabled:cursor-not-allowed transition-colors uppercase tracking-widest text-sm rounded-xl"
         >
-          {status.type === "pending" ? "LOCKING…" : "⬛ LOCK INTO MACHINE"}
+          {status.type === "pending" ? "LOCKING…" : "LOCK INTO MACHINE"}
         </button>
 
         {status.type === "success" && (
@@ -182,8 +184,15 @@ export default function AdminPanel() {
 
       {/* ── Current machine state ───────────────────────────────────── */}
       <section className="border border-[#162850] p-6 rounded-2xl bg-[#0A1730]">
-        <div className="text-[#0033AD] text-xs mb-4 uppercase tracking-wider font-bold">
-          [ MACHINE STATE — LOCKED UTxOs ]
+        <div className="flex items-center gap-3 mb-4">
+          <div className="text-[#0033AD] text-xs uppercase tracking-wider font-bold">
+            [ MACHINE STATE — LOCKED UTxOs ]
+          </div>
+          {isPolling && (
+            <span className="text-blue-700 text-xs animate-pulse">
+              syncing…
+            </span>
+          )}
         </div>
         <UTxODisplay refreshTrigger={refreshCounter} />
       </section>

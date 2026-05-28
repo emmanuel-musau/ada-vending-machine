@@ -20,10 +20,11 @@ import { useEffect, useState, useCallback } from "react";
 import { useWallet } from "@meshsdk/react";
 import WalletConnector from "./WalletConnector";
 import UTxODisplay from "./UTxODisplay";
-import { buildRedeemTx, bfToMeshUtxo } from "@/lib/meshTx";
+import { buildRedeemTx, pickCollateral, bfToMeshUtxo } from "@/lib/meshTx";
 import { fetchScriptUtxos, type BfUtxo } from "@/lib/blockfrost";
 import { SCRIPT_ADDRESS, CARDANOSCAN_BASE } from "@/lib/contract";
 import { parseCardanoError } from "@/lib/errors";
+import { usePollingRefresh } from "@/lib/usePollingRefresh";
 import type { UTxO } from "@meshsdk/core";
 
 type VendState = "idle" | "pending" | "dispensed" | "rejected" | "error";
@@ -33,13 +34,15 @@ export default function VendingMachine() {
   const typedWallet =
     wallet as unknown as import("@/lib/meshTx").WalletInterface;
 
+  const { tick: refreshCounter, triggerPoll, isPolling } = usePollingRefresh(3000, 25);
+
   const [guess, setGuess] = useState("");
   const [scriptUtxos, setScriptUtxos] = useState<BfUtxo[]>([]);
   const [selectedUtxo, setSelectedUtxo] = useState<BfUtxo | null>(null);
+  const [collateralUtxo, setCollateralUtxo] = useState<UTxO | null>(null);
   const [vendState, setVendState] = useState<VendState>("idle");
   const [txHash, setTxHash] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [refreshCounter, setRefreshCounter] = useState(0);
 
   // Fetch UTxOs at the script address whenever the component mounts or refreshes.
   // LEARNING: selectedUtxo is intentionally NOT in deps — including it would cause
@@ -58,6 +61,18 @@ export default function VendingMachine() {
   useEffect(() => {
     loadScriptUtxos();
   }, [loadScriptUtxos, refreshCounter]);
+
+  // Pre-resolve collateral as soon as the wallet connects so the user can see
+  // which UTxO will be at risk before they hit INSERT.
+  useEffect(() => {
+    if (!connected || !wallet) {
+      setCollateralUtxo(null);
+      return;
+    }
+    pickCollateral(typedWallet)
+      .then(setCollateralUtxo)
+      .catch(() => setCollateralUtxo(null));
+  }, [connected, wallet, typedWallet]);
 
   async function handleInsert() {
     if (!connected || !wallet) return;
@@ -91,7 +106,7 @@ export default function VendingMachine() {
       });
       setTxHash(hash);
       setVendState("dispensed");
-      setRefreshCounter((n) => n + 1);
+      triggerPoll();
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       const friendly = parseCardanoError(e);
@@ -142,8 +157,15 @@ export default function VendingMachine() {
 
         {/* Current stock — what's locked in the machine */}
         <div className="mb-5">
-          <div className="text-blue-500 text-xs mb-3 uppercase tracking-wider">
-            [ CURRENT STOCK ]
+          <div className="flex items-center gap-3 mb-3">
+            <div className="text-blue-500 text-xs uppercase tracking-wider">
+              [ CURRENT STOCK ]
+            </div>
+            {isPolling && (
+              <span className="text-blue-700 text-xs animate-pulse">
+                syncing…
+              </span>
+            )}
           </div>
           {scriptUtxos.length === 0 ? (
             <div className="text-blue-900 text-sm">machine is empty</div>
@@ -181,6 +203,37 @@ export default function VendingMachine() {
             </div>
           )}
         </div>
+
+        {/* Collateral preview */}
+        {connected && (
+          <div className="mb-5">
+            <div className="text-blue-500 text-xs mb-2 uppercase tracking-wider">
+              [ COLLATERAL ]
+            </div>
+            {collateralUtxo ? (
+              <div className="text-xs p-3 border border-[#0D2040] rounded-lg text-blue-800">
+                <span className="text-blue-400">
+                  {collateralUtxo.input.txHash.slice(0, 12)}…#
+                  {collateralUtxo.input.outputIndex}
+                </span>
+                {" | "}
+                {(
+                  Number(
+                    collateralUtxo.output.amount.find(
+                      (a) => a.unit === "lovelace"
+                    )?.quantity ?? 0
+                  ) / 1e6
+                ).toFixed(2)}{" "}
+                ADA at risk if script fails
+              </div>
+            ) : (
+              <div className="text-yellow-700 text-xs p-3 border border-yellow-900 rounded-lg">
+                no suitable collateral found — add a pure-ADA UTxO (≥ 2 ADA) to
+                your wallet
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Separator */}
         <div className="text-[#162850] text-xs mb-5">

@@ -98,7 +98,8 @@ export default function UTxODisplay({ refreshTrigger = 0 }: UTxODisplayProps) {
         SCRIPT ADDRESS: {SCRIPT_ADDRESS}
       </div>
 
-      {loading && (
+      {/* Only show spinner on the very first load — subsequent refreshes keep existing data visible */}
+      {loading && utxos.length === 0 && (
         <div className="text-blue-500 animate-pulse">
           fetching UTxOs from Blockfrost…
         </div>
@@ -112,9 +113,7 @@ export default function UTxODisplay({ refreshTrigger = 0 }: UTxODisplayProps) {
         </div>
       )}
 
-      {!loading &&
-        !error &&
-        utxos.map((utxo) => (
+      {utxos.map((utxo) => (
           <div
             key={`${utxo.tx_hash}-${utxo.tx_index}`}
             className="mb-4 border-l-2 border-[#0033AD] pl-3"

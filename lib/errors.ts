@@ -32,9 +32,17 @@ export function parseCardanoError(raw: unknown): string {
     return "This UTxO was already spent. Refresh to see current stock."
   }
 
-  // Collateral issues
-  if (msg.toLowerCase().includes("collateral")) {
-    return "Collateral problem — open your wallet settings and reserve ~5 ADA as collateral."
+  // Auto-selection found no suitable UTxO (thrown by pickCollateral)
+  if (msg.toLowerCase().includes("no suitable collateral")) {
+    return msg
+  }
+
+  // On-chain / protocol collateral errors (e.g. InsufficientCollateral, CollateralContainsNonADA)
+  if (
+    msg.toLowerCase().includes("collateral") ||
+    msg.toLowerCase().includes("insufficientcollateral")
+  ) {
+    return "Collateral problem — the protocol rejected the collateral UTxO. Try a different pure-ADA UTxO or set one explicitly in your wallet settings."
   }
 
   // Insufficient funds / fee coverage
