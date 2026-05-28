@@ -9,6 +9,25 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 
+function TabLoader() {
+  return (
+    <div className="max-w-2xl mx-auto flex flex-col items-center justify-center min-h-[420px] gap-4">
+      <div className="relative">
+        {/* Outer ping ring */}
+        <span className="absolute inset-0 rounded-full animate-ping bg-[#0033AD]/20" />
+        <img
+          src="/cardano-favicon.png"
+          alt=""
+          className="relative w-14 h-14 rounded-full opacity-70 animate-pulse"
+        />
+      </div>
+      <p className="text-[#162850] text-xs tracking-widest uppercase">
+        loading…
+      </p>
+    </div>
+  );
+}
+
 // LEARNING: ssr: false is required here because VendingMachine and AdminPanel both
 // import @meshsdk/core → @meshsdk/provider → @utxorpc/sdk → @connectrpc/connect,
 // which has a version mismatch with @bufbuild/protobuf@2.x at the SSR layer.
@@ -16,9 +35,11 @@ import dynamic from "next/dynamic";
 // so skipping server-side rendering is both correct and necessary.
 const VendingMachine = dynamic(() => import("@/components/VendingMachine"), {
   ssr: false,
+  loading: () => <TabLoader />,
 });
 const AdminPanel = dynamic(() => import("@/components/AdminPanel"), {
   ssr: false,
+  loading: () => <TabLoader />,
 });
 
 type Tab = "vend" | "admin";
