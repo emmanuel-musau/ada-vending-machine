@@ -72,7 +72,7 @@ export default function WalletConnector({ label }: WalletConnectorProps) {
         </span>
         <button
           onClick={() => disconnect()}
-          className="border border-green-800 text-green-700 text-xs px-3 py-1 hover:border-green-600 hover:text-green-500 cursor-pointer transition-colors"
+          className="border border-[#162850] text-blue-700 text-xs px-3 py-1.5 hover:border-[#0033AD] hover:text-blue-400 cursor-pointer transition-colors rounded-lg"
         >
           DISCONNECT
         </button>
@@ -94,22 +94,22 @@ export default function WalletConnector({ label }: WalletConnectorProps) {
           if (!connecting && !noWallets) setShowMenu((v) => !v)
         }}
         disabled={connecting || noWallets}
-        className="border border-green-500 text-green-400 text-sm px-4 py-2 hover:bg-green-950 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors tracking-widest uppercase"
+        className="border border-[#0033AD] text-blue-300 text-sm px-4 py-2 hover:bg-[#0D2040] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-colors tracking-widest uppercase rounded-xl"
       >
         {buttonLabel}
       </button>
 
       {/* Wallet selection dropdown */}
       {showMenu && (
-        <div className="absolute top-full left-0 mt-1 z-50 bg-black border border-green-700 min-w-48">
-          <div className="text-green-800 text-xs px-3 py-1 border-b border-green-900 uppercase tracking-widest">
+        <div className="absolute top-full left-0 mt-2 z-50 bg-[#0A1730] border border-[#162850] min-w-48 rounded-xl overflow-hidden shadow-lg shadow-[#020A1A]/80">
+          <div className="text-blue-700 text-xs px-3 py-2 border-b border-[#162850] uppercase tracking-widest">
             select wallet
           </div>
           {wallets.map((w) => (
             <button
               key={w.id}
               onClick={() => handleConnect(w.id)}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-green-600 hover:bg-green-950 hover:text-green-400 cursor-pointer transition-colors text-left"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-blue-500 hover:bg-[#0D2040] hover:text-blue-200 cursor-pointer transition-colors text-left"
             >
               {w.icon && (
                 <img src={w.icon} alt="" className="w-5 h-5 rounded flex-shrink-0" />
@@ -127,7 +127,7 @@ export default function WalletConnector({ label }: WalletConnectorProps) {
       )}
 
       {noWallets && (
-        <div className="mt-2 text-green-900 text-xs">
+        <div className="mt-2 text-blue-900 text-xs">
           Install a Cardano wallet extension (Eternl, Lace, Nami…) and reload.
         </div>
       )}

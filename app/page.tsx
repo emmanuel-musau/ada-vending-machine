@@ -27,39 +27,42 @@ export default function Home() {
   const [tab, setTab] = useState<Tab>("vend");
 
   return (
-    <main className="min-h-screen bg-black text-green-400 font-mono p-4 md:p-8">
+    <main className="min-h-screen bg-[#050D1F] text-blue-300 font-mono p-4 md:p-8">
       {/* ── Header ──────────────────────────────────────────────────── */}
-      <header className="mb-8 text-center">
-        <p className="text-green-700 text-xs tracking-widest mt-2">
+      <header className="mb-10 text-center">
+        <h1 className="text-2xl font-bold tracking-widest text-blue-100 mb-2">
+          ADA VENDING MACHINE
+        </h1>
+        <p className="text-blue-500/60 text-xs tracking-widest">
           CARDANO PLUTUS LEARNING DAPP — PREVIEW TESTNET
         </p>
-        <p className="text-green-900 text-xs mt-1">
+        <p className="text-blue-900 text-xs mt-1">
           validator: vending_machine.vending_machine.spend | network: preview
           testnet
         </p>
       </header>
 
       {/* ── Tab bar ─────────────────────────────────────────────────── */}
-      <div className="flex border-b border-green-800 mb-8 max-w-2xl mx-auto">
+      <div className="flex border-b border-[#162850] mb-10 max-w-2xl mx-auto">
         <button
           onClick={() => setTab("vend")}
-          className={`px-6 py-2 text-sm uppercase tracking-widest border-b-2 transition-colors ${
+          className={`px-6 py-3 text-sm uppercase tracking-widest border-b-2 transition-colors ${
             tab === "vend"
-              ? "border-green-400 text-green-400"
-              : "border-transparent text-green-800 hover:text-green-600"
+              ? "border-[#0033AD] text-blue-200"
+              : "border-transparent text-blue-900 hover:text-blue-600"
           }`}
         >
-          ▶ VEND
+          VENDER
         </button>
         <button
           onClick={() => setTab("admin")}
-          className={`px-6 py-2 text-sm uppercase tracking-widest border-b-2 transition-colors ${
+          className={`px-6 py-3 text-sm uppercase tracking-widest border-b-2 transition-colors ${
             tab === "admin"
-              ? "border-green-400 text-green-400"
-              : "border-transparent text-green-800 hover:text-green-600"
+              ? "border-[#0033AD] text-blue-200"
+              : "border-transparent text-blue-900 hover:text-blue-600"
           }`}
         >
-          ⬛ ADMIN
+          ADMIN
         </button>
       </div>
 
@@ -68,14 +71,14 @@ export default function Home() {
       {tab === "admin" && <AdminPanel />}
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
-      <footer className="mt-16 text-center text-green-900 text-xs space-y-1">
+      <footer className="mt-20 text-center text-[#162850] text-xs space-y-1">
         <p>
           built with{" "}
           <a
             href="https://aiken-lang.org"
             target="_blank"
             rel="noreferrer"
-            className="text-green-700 hover:text-green-500"
+            className="text-[#0033AD] hover:text-blue-400 transition-colors"
           >
             Aiken
           </a>{" "}
@@ -84,7 +87,7 @@ export default function Home() {
             href="https://meshjs.dev"
             target="_blank"
             rel="noreferrer"
-            className="text-green-700 hover:text-green-500"
+            className="text-[#0033AD] hover:text-blue-400 transition-colors"
           >
             MeshSDK
           </a>{" "}
@@ -93,14 +96,14 @@ export default function Home() {
             href="https://nextjs.org"
             target="_blank"
             rel="noreferrer"
-            className="text-green-700 hover:text-green-500"
+            className="text-[#0033AD] hover:text-blue-400 transition-colors"
           >
             Next.js
           </a>
         </p>
         <p>
           validator source:{" "}
-          <code className="text-green-800">
+          <code className="text-[#0A1730]">
             smart-contract/validators/vending_machine.ak
           </code>
         </p>

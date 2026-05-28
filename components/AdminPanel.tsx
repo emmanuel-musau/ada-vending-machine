@@ -75,28 +75,28 @@ export default function AdminPanel() {
   }
 
   const inputCls =
-    "w-full bg-black border border-green-800 text-green-300 px-3 py-2 text-sm focus:outline-none focus:border-green-500 placeholder-green-900"
+    "w-full bg-[#050D1F] border border-[#162850] text-blue-100 px-3 py-2.5 text-sm focus:outline-none focus:border-[#0033AD] placeholder-blue-900 rounded-lg transition-colors"
 
-  const labelCls = "block text-green-600 text-xs mb-1 uppercase tracking-wider"
+  const labelCls = "block text-blue-500 text-xs mb-1.5 uppercase tracking-wider"
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-8">
       {/* ── Wallet ─────────────────────────────────────────────────── */}
-      <section className="border border-green-800 p-4">
-        <div className="text-green-500 text-xs mb-3 uppercase tracking-widest">
+      <section className="border border-[#162850] p-6 rounded-2xl bg-[#0A1730]">
+        <div className="text-[#0033AD] text-xs mb-4 uppercase tracking-wider font-bold">
           [ WALLET ]
         </div>
         <WalletConnector label="Connect Admin Wallet" />
         {connected && (
-          <div className="text-green-600 text-xs mt-2">
+          <div className="text-green-600 text-xs mt-3">
             ✓ wallet connected — ready to lock funds
           </div>
         )}
       </section>
 
       {/* ── Lock form ──────────────────────────────────────────────── */}
-      <section className="border border-green-800 p-4 space-y-4">
-        <div className="text-green-500 text-xs mb-3 uppercase tracking-widest">
+      <section className="border border-[#162850] p-6 rounded-2xl bg-[#0A1730] space-y-5">
+        <div className="text-[#0033AD] text-xs uppercase tracking-wider font-bold">
           [ LOCK ADA INTO MACHINE ]
         </div>
 
@@ -116,16 +116,16 @@ export default function AdminPanel() {
           />
           {/* LEARNING: 1 ADA = 1,000,000 lovelace. The tx builder receives lovelace
               because Cardano amounts are always integers on-chain. */}
-          <div className="mt-1 flex gap-4 text-xs">
+          <div className="mt-1.5 flex gap-4 text-xs">
             {ada && !isNaN(adaNum) && (
-              <span className={adaNum < MIN_ADA ? "text-red-500" : "text-green-700"}>
+              <span className={adaNum < MIN_ADA ? "text-red-500" : "text-blue-400"}>
                 = {lovelace.toLocaleString()} lovelace
                 {adaNum < MIN_ADA && (
                   <span className="ml-2">✗ minimum {MIN_ADA} ADA</span>
                 )}
               </span>
             )}
-            <span className="text-green-900">min: {MIN_ADA} ADA</span>
+            <span className="text-blue-900">min: {MIN_ADA} ADA</span>
           </div>
         </div>
 
@@ -149,15 +149,15 @@ export default function AdminPanel() {
         <button
           onClick={handleLock}
           disabled={!connected || status.type === "pending" || adaNum < MIN_ADA}
-          className="w-full py-3 border border-green-500 text-green-400 hover:bg-green-950 disabled:opacity-30 disabled:cursor-not-allowed transition-colors uppercase tracking-widest text-sm"
+          className="w-full py-3 border border-[#0033AD] text-blue-300 hover:bg-[#0D2040] disabled:opacity-30 disabled:cursor-not-allowed transition-colors uppercase tracking-widest text-sm rounded-xl"
         >
           {status.type === "pending" ? "LOCKING…" : "⬛ LOCK INTO MACHINE"}
         </button>
 
         {status.type === "success" && (
-          <div className="border border-green-600 p-3 text-sm space-y-2">
+          <div className="border border-[#0033AD] p-4 text-sm space-y-2 rounded-xl bg-[#0D2040]">
             <div className="text-green-400">✓ LOCKED</div>
-            <div className="text-green-600 text-xs break-all">
+            <div className="text-blue-400 text-xs break-all">
               {/* LEARNING: The tx hash is blake2b-256 of the serialised transaction body.
                   It is the unique, permanent identifier for this transaction on-chain. */}
               TX HASH: {status.txHash}
@@ -166,7 +166,7 @@ export default function AdminPanel() {
               href={`${CARDANOSCAN_BASE}/transaction/${status.txHash}`}
               target="_blank"
               rel="noreferrer"
-              className="text-blue-400 hover:text-blue-300 text-xs"
+              className="text-blue-400 hover:text-blue-300 text-xs transition-colors"
             >
               View on Cardanoscan ↗
             </a>
@@ -174,15 +174,15 @@ export default function AdminPanel() {
         )}
 
         {status.type === "error" && (
-          <div className="border border-red-900 bg-red-950/30 p-3 text-red-400 text-sm">
+          <div className="border border-red-900 bg-red-950/30 p-3 text-red-400 text-sm rounded-lg">
             {status.message}
           </div>
         )}
       </section>
 
       {/* ── Current machine state ───────────────────────────────────── */}
-      <section className="border border-green-800 p-4">
-        <div className="text-green-500 text-xs mb-3 uppercase tracking-widest">
+      <section className="border border-[#162850] p-6 rounded-2xl bg-[#0A1730]">
+        <div className="text-[#0033AD] text-xs mb-4 uppercase tracking-wider font-bold">
           [ MACHINE STATE — LOCKED UTxOs ]
         </div>
         <UTxODisplay refreshTrigger={refreshCounter} />

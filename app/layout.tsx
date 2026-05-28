@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: "ADA Vending Machine",
   description:
     "Cardano Plutus dApp learning project — lock ADA + tokens with a secret code, redeem with the correct guess. Preview testnet.",
+  icons: { icon: "/cardano-favicon.png" },
 }
 
 export default function RootLayout({
@@ -23,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistMono.variable} h-full`}>
       <body
-        className="min-h-full flex flex-col bg-black text-green-400 font-mono"
+        className="min-h-full flex flex-col bg-[#050D1F] text-blue-300 font-mono"
         suppressHydrationWarning
       >
         {/*

@@ -93,13 +93,13 @@ export default function UTxODisplay({ refreshTrigger = 0 }: UTxODisplayProps) {
   }, [refreshTrigger])
 
   return (
-    <div className="border border-green-800 p-4 rounded font-mono text-sm">
-      <div className="text-green-500 mb-3 text-xs">
+    <div className="border border-[#0D2040] p-4 rounded-xl font-mono text-sm bg-[#050D1F]">
+      <div className="text-blue-800 mb-3 text-xs">
         SCRIPT ADDRESS: {SCRIPT_ADDRESS}
       </div>
 
       {loading && (
-        <div className="text-green-600 animate-pulse">
+        <div className="text-blue-500 animate-pulse">
           fetching UTxOs from Blockfrost…
         </div>
       )}
@@ -107,7 +107,7 @@ export default function UTxODisplay({ refreshTrigger = 0 }: UTxODisplayProps) {
       {error && <div className="text-red-500">ERROR: {error}</div>}
 
       {!loading && !error && utxos.length === 0 && (
-        <div className="text-gray-500">
+        <div className="text-blue-900">
           {"> "} no UTxOs at script address — machine is empty
         </div>
       )}
@@ -117,16 +117,16 @@ export default function UTxODisplay({ refreshTrigger = 0 }: UTxODisplayProps) {
         utxos.map((utxo) => (
           <div
             key={`${utxo.tx_hash}-${utxo.tx_index}`}
-            className="mb-4 border-l-2 border-green-700 pl-3"
+            className="mb-4 border-l-2 border-[#0033AD] pl-3"
           >
             {/* LEARNING: Each UTxO is identified by (txHash, outputIndex).
                 This is the "name" of the coin — unique across the entire blockchain. */}
-            <div className="text-green-400">
+            <div className="text-blue-300">
               UTxO: {utxo.tx_hash.slice(0, 16)}…#{utxo.tx_index}
             </div>
 
             {/* LEARNING: The "value" of a UTxO is the set of assets it holds. */}
-            <div className="text-green-300 mt-1">
+            <div className="text-blue-200 mt-1">
               ├─ ADA:  {formatLovelace(utxo.amount)}
             </div>
 
@@ -139,9 +139,9 @@ export default function UTxODisplay({ refreshTrigger = 0 }: UTxODisplayProps) {
             {/* LEARNING: The datum is the "lock" — the validator checks the redeemer
                 against this value. "Inline" means it lives in the UTxO output itself,
                 making it readable without a separate lookup. */}
-            <div className="text-cyan-400 mt-1">
+            <div className="text-blue-400 mt-1">
               └─ DATUM (raw CBOR hex): {utxo.inline_datum ?? "(none)"}
-              <span className="text-cyan-600 ml-2">
+              <span className="text-blue-700 ml-2">
                 → decoded: {decodeDatum(utxo.inline_datum)}
               </span>
             </div>
@@ -150,7 +150,7 @@ export default function UTxODisplay({ refreshTrigger = 0 }: UTxODisplayProps) {
               href={`${CARDANOSCAN_BASE}/transaction/${utxo.tx_hash}`}
               target="_blank"
               rel="noreferrer"
-              className="text-blue-500 hover:text-blue-400 text-xs mt-1 inline-block"
+              className="text-[#0033AD] hover:text-blue-400 text-xs mt-1 inline-block transition-colors"
             >
               [view on Cardanoscan ↗]
             </a>
