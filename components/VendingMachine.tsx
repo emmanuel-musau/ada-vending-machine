@@ -62,6 +62,7 @@ export default function VendingMachine() {
     loadScriptUtxos();
   }, [loadScriptUtxos, refreshCounter]);
 
+
   // Pre-resolve collateral as soon as the wallet connects so the user can see
   // which UTxO will be at risk before they hit INSERT.
   useEffect(() => {
